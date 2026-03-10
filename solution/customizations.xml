@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImportExportXml version="9.0.0.0001" SolutionPackageVersion="9.0" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Bots>
+    <Bot UniqueName="cr_UnderwriterAgent" LanguageCode="1033" SchemaName="cr_UnderwriterAgent">
+      <BotVersions>
+        <BotVersion Major="1" Minor="0" IsActivated="1">
+          <DisplayName>Underwriter Agent</DisplayName>
+          <Description>AI agent for automating underwriter submission workflows. Assists users in submitting and tracking underwriting requests.</Description>
+          <AuthenticationMode>1</AuthenticationMode>
+          <AuthenticationTrigger>0</AuthenticationTrigger>
+          <IconBase64Encoded />
+        </BotVersion>
+      </BotVersions>
+      <LocalizedNames>
+        <LocalizedName description="Underwriter Agent" languagecode="1033" />
+      </LocalizedNames>
+      <Descriptions>
+        <Description description="AI agent for automating underwriter submission workflows." languagecode="1033" />
+      </Descriptions>
+    </Bot>
+  </Bots>
+</ImportExportXml>

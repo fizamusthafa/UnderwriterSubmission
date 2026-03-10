@@ -1,0 +1,110 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "cr_sharedcommondataserviceforapps"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "PowerVirtualAgents",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ReferenceNumber": {
+                  "type": "string",
+                  "description": "Submission reference number to look up"
+                },
+                "Email": {
+                  "type": "string",
+                  "description": "Contact email associated with the submission"
+                }
+              },
+              "required": [
+                "ReferenceNumber",
+                "Email"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Get_Submission_Record": {
+          "runAfter": {},
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "ListRecords",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+            },
+            "parameters": {
+              "entityName": "cr_underwritingsubmissions",
+              "$filter": "cr_referencenumber eq '@{triggerBody()?['ReferenceNumber']}' and cr_contactemail eq '@{triggerBody()?['Email']}'"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Respond_to_Agent": {
+          "runAfter": {
+            "Get_Submission_Record": ["Succeeded"]
+          },
+          "type": "Response",
+          "kind": "PowerVirtualAgents",
+          "inputs": {
+            "statusCode": 200,
+            "body": {
+              "SubmissionStatus": "@{first(body('Get_Submission_Record')?['value'])?['cr_status']}",
+              "SubmissionDate": "@{first(body('Get_Submission_Record')?['value'])?['cr_submissiondate']}",
+              "EstimatedCompletion": "@{addDays(first(body('Get_Submission_Record')?['value'])?['cr_submissiondate'], 3)}",
+              "ReviewNotes": "@{first(body('Get_Submission_Record')?['value'])?['cr_reviewnotes']}"
+            },
+            "schema": {
+              "type": "object",
+              "properties": {
+                "SubmissionStatus": {
+                  "type": "string",
+                  "description": "Current status of the submission"
+                },
+                "SubmissionDate": {
+                  "type": "string",
+                  "description": "Date the submission was made"
+                },
+                "EstimatedCompletion": {
+                  "type": "string",
+                  "description": "Estimated completion date"
+                },
+                "ReviewNotes": {
+                  "type": "string",
+                  "description": "Any notes from the underwriting review"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "schemaVersion": "1.0.0.0"
+}

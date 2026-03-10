@@ -1,0 +1,106 @@
+kind: AdaptiveDialog
+id: SubmitNewRequest
+triggers:
+  - kind: OnIntent
+    id: submitNewRequestTrigger
+    intent:
+      triggerQueries:
+        - Submit a new underwriting request
+        - I want to submit a request
+        - New submission
+        - Create underwriting request
+        - Start a new submission
+        - File an underwriting request
+actions:
+  - kind: SendMessage
+    id: intro
+    message: I'll help you submit a new underwriting request. Let me gather some information.
+
+  - kind: Question
+    id: askPolicyholderName
+    prompt: What is the full name of the policyholder?
+    entity: StringPrebuiltEntity
+    output:
+      binding: =topic.PolicyholderName
+
+  - kind: Question
+    id: askPolicyType
+    prompt: What type of policy are you requesting? (e.g., Auto, Home, Life, Commercial)
+    entity: StringPrebuiltEntity
+    output:
+      binding: =topic.PolicyType
+
+  - kind: Question
+    id: askCoverageAmount
+    prompt: What is the requested coverage amount (in USD)?
+    entity: MoneyPrebuiltEntity
+    output:
+      binding: =topic.CoverageAmount
+
+  - kind: Question
+    id: askRiskDescription
+    prompt: Please briefly describe the risk being submitted for underwriting review.
+    entity: StringPrebuiltEntity
+    output:
+      binding: =topic.RiskDescription
+
+  - kind: Question
+    id: askContactEmail
+    prompt: What is the contact email address for this submission?
+    entity: EmailPrebuiltEntity
+    output:
+      binding: =topic.ContactEmail
+
+  - kind: SendMessage
+    id: confirmSubmission
+    message: >
+      Thank you! Here is a summary of your submission:
+
+      - **Policyholder:** ={topic.PolicyholderName}
+
+      - **Policy Type:** ={topic.PolicyType}
+
+      - **Coverage Amount:** ={topic.CoverageAmount}
+
+      - **Risk Description:** ={topic.RiskDescription}
+
+      - **Contact Email:** ={topic.ContactEmail}
+
+  - kind: Question
+    id: confirmQuestion
+    prompt: Would you like to submit this request?
+    entity: BooleanPrebuiltEntity
+    output:
+      binding: =topic.IsConfirmed
+
+  - kind: ConditionGroup
+    id: submitCondition
+    conditions:
+      - id: confirmYes
+        condition: =topic.IsConfirmed
+        actions:
+          - kind: InvokeFlowAction
+            id: triggerSubmissionFlow
+            flowId: cr_SubmitUnderwritingRequest
+            inputs:
+              PolicyholderName: =topic.PolicyholderName
+              PolicyType: =topic.PolicyType
+              CoverageAmount: =topic.CoverageAmount
+              RiskDescription: =topic.RiskDescription
+              ContactEmail: =topic.ContactEmail
+            outputs:
+              ReferenceNumber: =topic.GeneratedReferenceNumber
+
+          - kind: SendMessage
+            id: submittedMessage
+            message: >
+              Your underwriting request has been submitted successfully!
+              Your reference number is: **={topic.GeneratedReferenceNumber}**
+              A confirmation has been sent to ={topic.ContactEmail}.
+              Our underwriting team will review your submission within 2-3 business days.
+      - id: confirmNo
+        condition: =!topic.IsConfirmed
+        actions:
+          - kind: SendMessage
+            id: cancelledMessage
+            message: Your submission has been cancelled. Feel free to start again when you're ready.

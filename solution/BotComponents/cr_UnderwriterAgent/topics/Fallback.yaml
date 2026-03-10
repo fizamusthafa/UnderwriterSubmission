@@ -1,0 +1,20 @@
+kind: AdaptiveDialog
+id: Fallback
+triggers:
+  - kind: OnUnknownIntent
+    id: fallbackTrigger
+
+actions:
+  - kind: SendMessage
+    id: fallbackMessage
+    message: >
+      I'm sorry, I didn't quite understand that. I'm the Underwriter Submission Agent and I can help you with:
+
+      - **Submit a new request** — Start a new underwriting submission
+
+      - **Check submission status** — Track an existing submission
+
+      - **Get policy information** — Learn about policy types and requirements
+
+
+      Could you please rephrase your question, or choose one of the options above?
