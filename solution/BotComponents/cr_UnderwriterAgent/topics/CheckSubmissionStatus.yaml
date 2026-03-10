@@ -1,0 +1,60 @@
+kind: AdaptiveDialog
+id: CheckSubmissionStatus
+triggers:
+  - kind: OnIntent
+    id: checkStatusTrigger
+    intent:
+      triggerQueries:
+        - Check submission status
+        - What is the status of my submission
+        - Track my request
+        - Status update
+        - Where is my underwriting request
+        - Has my submission been reviewed
+
+actions:
+  - kind: SendMessage
+    id: intro
+    message: I can help you check the status of your underwriting submission.
+
+  - kind: Question
+    id: askReferenceNumber
+    prompt: Please provide your submission reference number.
+    entity: StringPrebuiltEntity
+    output:
+      binding: =topic.ReferenceNumber
+
+  - kind: Question
+    id: askEmail
+    prompt: Please confirm the email address associated with this submission.
+    entity: EmailPrebuiltEntity
+    output:
+      binding: =topic.Email
+
+  - kind: InvokeFlowAction
+    id: lookupSubmissionFlow
+    flowId: cr_GetUnderwritingSubmissionStatus
+    inputs:
+      ReferenceNumber: =topic.ReferenceNumber
+      Email: =topic.Email
+    outputs:
+      SubmissionStatus: =topic.SubmissionStatus
+      SubmissionDate: =topic.SubmissionDate
+      EstimatedCompletion: =topic.EstimatedCompletion
+      ReviewNotes: =topic.ReviewNotes
+
+  - kind: SendMessage
+    id: statusResult
+    message: >
+      Here is the status for reference number ={topic.ReferenceNumber}:
+
+      **Status:** ={topic.SubmissionStatus}
+
+      **Submitted:** ={topic.SubmissionDate}
+
+      **Estimated Completion:** ={topic.EstimatedCompletion}
+
+      **Notes:** ={topic.ReviewNotes}
+
+
+      Is there anything else I can help you with?

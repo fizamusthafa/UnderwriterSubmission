@@ -1,0 +1,26 @@
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnConversationStart
+  id: main
+  actions:
+    - kind: SendMessage
+      id: welcomeMessage
+      message: >
+        Hello! I'm the Underwriter Submission Agent. I can help you with:
+
+        - Submitting new underwriting requests
+
+        - Checking the status of existing submissions
+
+        - Retrieving policy information
+
+        - Answering questions about the underwriting process
+
+
+        How can I assist you today?
+
+topics:
+  - $ref: topics/SubmitNewRequest.yaml
+  - $ref: topics/CheckSubmissionStatus.yaml
+  - $ref: topics/GetPolicyInfo.yaml
+  - $ref: topics/Fallback.yaml

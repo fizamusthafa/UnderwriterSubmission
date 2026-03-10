@@ -1,0 +1,57 @@
+kind: AdaptiveDialog
+id: GetPolicyInfo
+triggers:
+  - kind: OnIntent
+    id: getPolicyInfoTrigger
+    intent:
+      triggerQueries:
+        - Get policy information
+        - Tell me about my policy
+        - Policy details
+        - What are the underwriting guidelines
+        - Policy requirements
+        - What documents do I need
+
+actions:
+  - kind: SendMessage
+    id: policyInfo
+    message: >
+      Here is a summary of our underwriting guidelines and requirements:
+
+
+      **Required Documents for Submission:**
+
+      - Completed application form
+
+      - Proof of identity (government-issued ID)
+
+      - Financial statements (last 2 years)
+
+      - Risk assessment report
+
+      - Any relevant supporting documentation
+
+
+      **Policy Types Available:**
+
+      - **Auto Insurance:** Coverage for personal and commercial vehicles
+
+      - **Home Insurance:** Protection for residential properties
+
+      - **Life Insurance:** Term and whole life coverage options
+
+      - **Commercial Insurance:** Business liability and property coverage
+
+
+      **Underwriting Criteria:**
+
+      - Credit history review
+
+      - Claims history analysis
+
+      - Risk factor assessment
+
+      - Coverage limit evaluation
+
+
+      Would you like more details about a specific policy type, or would you like to start a new submission?

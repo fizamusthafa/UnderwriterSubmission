@@ -1,0 +1,117 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "cr_sharedcommondataserviceforapps"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "PowerVirtualAgents",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "PolicyholderName": {
+                  "type": "string",
+                  "description": "Full name of the policyholder"
+                },
+                "PolicyType": {
+                  "type": "string",
+                  "description": "Type of policy (Auto, Home, Life, Commercial)"
+                },
+                "CoverageAmount": {
+                  "type": "number",
+                  "description": "Requested coverage amount in USD"
+                },
+                "RiskDescription": {
+                  "type": "string",
+                  "description": "Description of the risk being underwritten"
+                },
+                "ContactEmail": {
+                  "type": "string",
+                  "description": "Contact email address for the submission"
+                }
+              },
+              "required": [
+                "PolicyholderName",
+                "PolicyType",
+                "CoverageAmount",
+                "RiskDescription",
+                "ContactEmail"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Create_Underwriting_Submission": {
+          "runAfter": {},
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "CreateRecord",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+            },
+            "parameters": {
+              "entityName": "cr_underwritingsubmissions",
+              "item/cr_policyholdername": "@triggerBody()?['PolicyholderName']",
+              "item/cr_policytype": "@triggerBody()?['PolicyType']",
+              "item/cr_coverageamount": "@triggerBody()?['CoverageAmount']",
+              "item/cr_riskdescription": "@triggerBody()?['RiskDescription']",
+              "item/cr_contactemail": "@triggerBody()?['ContactEmail']",
+              "item/cr_submissiondate": "@utcNow()",
+              "item/cr_status": "Submitted",
+              "item/cr_referencenumber": "@concat('UW-', string(rand(100000, 999999)))"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Respond_to_Agent": {
+          "runAfter": {
+            "Create_Underwriting_Submission": ["Succeeded"]
+          },
+          "type": "Response",
+          "kind": "PowerVirtualAgents",
+          "inputs": {
+            "statusCode": 200,
+            "body": {
+              "ReferenceNumber": "@body('Create_Underwriting_Submission')?['cr_referencenumber']"
+            },
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ReferenceNumber": {
+                  "type": "string",
+                  "description": "Generated reference number for the submission"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "schemaVersion": "1.0.0.0"
+}
